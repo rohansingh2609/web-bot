@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vishwa Medical Admission Point</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --white: #ffffff;
+    --bg: #f8f8f6;
+    --text-dark: #0e1117;
+    --text-mid: #3a3d47;
+    --text-light: #7a7f8e;
+    --accent: #1a6ef5;
+    --accent-glow: rgba(26,110,245,0.25);
+    --gold: #c9922a;
+    --gold-light: #f0c060;
+
+    /* Chatbot */
+    --cb-bg: #0f1117;
+    --cb-surface: #181c27;
+    --cb-border: rgba(255,255,255,0.07);
+    --cb-msg-bot: #1e2335;
+    --cb-msg-user: #1a6ef5;
+    --cb-header: linear-gradient(135deg,#1a6ef5 0%,#0a3fa0 100%);
+    --cb-radius: 20px;
+    --cb-shadow: 0 24px 80px rgba(0,0,0,0.45), 0 0 0 1px rgba(26,110,245,0.15);
+  }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px;
+    position: relative;
+    background: var(--white);
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(26,110,245,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 80% 80%, rgba(201,146,42,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(26,110,245,0.08);
+    border: 1px solid rgba(26,110,245,0.2);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 32px;
+  }
+  .badge-dot { width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+
+  .hero-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 64px);
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text-dark);
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .hero-logo span { color: var(--accent); }
+
+  .hero-sub {
+    font-size: clamp(14px, 2vw, 20px);
+    color: var(--text-light);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    margin-bottom: 48px;
+  }
+
+  .divider {
+    width: 60px; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    border-radius: 2px;
+    margin: 0 auto 48px;
+  }
+
+  .cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 900px;
+  }
+
+  .card {
+    background: var(--white);
+    border: 1px solid #e8e8e8;
+    border-radius: 16px;
+    padding: 28px 32px;
+    width: 220px;
+    text-align: left;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+    cursor: default;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(26,110,245,0.1);
+    border-color: rgba(26,110,245,0.2);
+  }
+  .card-icon { font-size: 28px; margin-bottom: 12px; }
+  .card-title { font-weight: 600; font-size: 15px; color: var(--text-dark); margin-bottom: 6px; }
+  .card-desc { font-size: 13px; color: var(--text-light); line-height: 1.5; }
+
+  .cta-hint {
+    margin-top: 56px;
+    font-size: 14px;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cta-hint::before, .cta-hint::after {
+    content:'';flex:1;height:1px;background:#e0e0e0;
+  }
+
+  /* ── FLOATING BUTTON ── */
+  #chatToggle {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a6ef5, #0a3fa0);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 28px rgba(26,110,245,0.45), 0 0 0 0 rgba(26,110,245,0.3);
+    transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s;
+    z-index: 9999;
+    animation: floatGlow 3s ease-in-out infinite;
+  }
+  @keyframes floatGlow {
+    0%,100% { box-shadow: 0 6px 28px rgba(26,110,245,0.45), 0 0 0 0 rgba(26,110,245,0.3); }
+    50% { box-shadow: 0 6px 28px rgba(26,110,245,0.55), 0 0 0 10px rgba(26,110,245,0); }
+  }
+  #chatToggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 40px rgba(26,110,245,0.6);
+    animation: none;
+  }
+  #chatToggle svg { transition: opacity 0.2s, transform 0.3s; }
+  #chatToggle .ico-close { position:absolute; opacity:0; transform:rotate(-90deg); }
+  #chatToggle.open .ico-open { opacity:0; transform:rotate(90deg); }
+  #chatToggle.open .ico-close { opacity:1; transform:rotate(0deg); }
+
+  .notif-dot {
+    position:absolute;top:10px;right:10px;
+    width:12px;height:12px;
+    background:#22c55e;border-radius:50%;
+    border:2px solid var(--white);
+    animation:pulse 2s infinite;
+  }
+  #chatToggle.open .notif-dot { display:none; }
+
+  /* ── CHATBOT POPUP ── */
+  #chatPopup {
+    position: fixed;
+    bottom: 104px;
+    right: 28px;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    height: 560px;
+    max-height: calc(100vh - 130px);
+    background: var(--cb-bg);
+    border-radius: var(--cb-radius);
+    box-shadow: var(--cb-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 9998;
+    border: 1px solid var(--cb-border);
+    opacity: 0;
+    transform: translateY(24px) scale(0.95);
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(.4,0,.2,1), transform 0.3s cubic-bezier(.34,1.56,.64,1);
+    transform-origin: bottom right;
+  }
+  #chatPopup.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+  }
+
+  /* Header */
+  .cb-header {
+    background: var(--cb-header);
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .cb-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    border: 2px solid rgba(255,255,255,0.25);
+    flex-shrink: 0;
+  }
+  .cb-header-info { flex: 1; min-width: 0; }
+  .cb-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cb-name small { display:block; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:400; opacity:0.75; margin-top:1px; }
+  .cb-status {
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+  }
+  .cb-status-dot { width:7px;height:7px;background:#22c55e;border-radius:50%;animation:pulse 2s infinite; }
+
+  .cb-close {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    line-height: 1;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .cb-close:hover { background: rgba(255,255,255,0.22); }
+
+  /* Messages */
+  .cb-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scroll-behavior: smooth;
+  }
+  .cb-messages::-webkit-scrollbar { width: 4px; }
+  .cb-messages::-webkit-scrollbar-track { background: transparent; }
+  .cb-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+  .msg-row { display: flex; gap: 10px; align-items: flex-end; }
+  .msg-row.user { flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .msg-bubble {
+    max-width: 80%;
+    padding: 11px 15px;
+    border-radius: 16px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #e8ebf3;
+    word-break: break-word;
+  }
+  .msg-row.bot .msg-bubble {
+    background: var(--cb-msg-bot);
+    border-bottom-left-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .msg-row.user .msg-bubble {
+    background: var(--cb-msg-user);
+    border-bottom-right-radius: 4px;
+    color: #fff;
+  }
+
+  /* Typing */
+  .typing-dots { display: flex; gap: 4px; align-items: center; padding: 4px 2px; }
+  .typing-dots span {
+    width: 7px; height: 7px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+  /* Buttons */
+  .cb-btn-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+  .cb-btn {
+    padding: 9px 18px;
+    border-radius: 100px;
+    border: 1.5px solid rgba(26,110,245,0.5);
+    background: rgba(26,110,245,0.08);
+    color: #7eb8ff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s, color 0.2s;
+  }
+  .cb-btn:hover:not(:disabled) {
+    background: rgba(26,110,245,0.22);
+    border-color: rgba(26,110,245,0.8);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  .cb-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Input area */
+  .cb-input-area {
+    padding: 14px 16px;
+    border-top: 1px solid var(--cb-border);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-shrink: 0;
+    background: var(--cb-bg);
+  }
+  .cb-input {
+    flex: 1;
+    background: var(--cb-surface);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 10px 14px;
+    color: #e8ebf3;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .cb-input::placeholder { color: rgba(255,255,255,0.25); }
+  .cb-input:focus { border-color: rgba(26,110,245,0.5); }
+  .cb-input:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .cb-send {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
+  }
+  .cb-send:hover:not(:disabled) { background: #0a5de0; transform: scale(1.08); }
+  .cb-send:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+  .cb-send svg { fill: #fff; }
+
+  /* msg anim */
+  @keyframes msgIn {
+    from { opacity:0; transform: translateY(8px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  .msg-row { animation: msgIn 0.28s ease; }
+
+  /* Success */
+  .success-msg {
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.25);
+    color: #6ee7a8;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 480px) {
+    #chatPopup { right: 12px; bottom: 88px; width: calc(100vw - 24px); }
+    #chatToggle { right: 16px; bottom: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ MAIN PAGE ══ -->
+<main class="hero">
+  <div class="badge"><span class="badge-dot"></span>Trusted Medical Admission Consultants</div>
+
+  <h1 class="hero-logo">
+    Vishwa <span>Medical</span><br/>Admission Point
+  </h1>
+  <p class="hero-sub">Admission in India &amp; Abroad · MBBS · BDS · MD</p>
+  <div class="divider"></div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">🏥</div>
+      <div class="card-title">India Admissions</div>
+      <div class="card-desc">Top government &amp; private medical colleges across India.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌍</div>
+      <div class="card-title">Abroad Admissions</div>
+      <div class="card-desc">Georgia, Russia, Almaty &amp; more — affordable MBBS abroad.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎓</div>
+      <div class="card-title">Expert Guidance</div>
+      <div class="card-desc">End-to-end support from application to visa.</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">📋</div>
+      <div class="card-title">NEET Counselling</div>
+      <div class="card-desc">Dedicated NEET counsellors for rank-based seat allocation.</div>
+    </div>
+  </div>
+
+  <p class="cta-hint">Chat with us right now — we reply instantly</p>
+</main>
+
+<!-- ══ CHATBOT TOGGLE ══ -->
+<button id="chatToggle" aria-label="Open chat">
+  <span class="notif-dot"></span>
+  <svg class="ico-open" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+  <svg class="ico-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+</button>
+
+<!-- ══ CHATBOT POPUP ══ -->
+<div id="chatPopup" role="dialog" aria-label="Chat support">
+  <div class="cb-header">
+    <div class="cb-avatar">🏥</div>
+    <div class="cb-header-info">
+      <div class="cb-name">
+        VISHWA MEDICAL ADMISSION POINT
+        <small>Admission in India and Abroad</small>
+      </div>
+      <div class="cb-status">
+        <span class="cb-status-dot"></span>
+        🟢 Online — replies instantly
+      </div>
+    </div>
+    <button class="cb-close" id="chatClose" aria-label="Close chat">✕</button>
+  </div>
+
+  <div class="cb-messages" id="cbMessages"></div>
+
+  <div class="cb-input-area">
+    <input class="cb-input" id="cbInput" type="text" placeholder="Type a message…" disabled autocomplete="off"/>
+    <button class="cb-send" id="cbSend" disabled aria-label="Send">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function () {
+
+  // ════════════════════════════════════════════════════════
+  //  CONFIG — paste your deployed Apps Script URL here
+  // ════════════════════════════════════════════════════════
+  const APPS_SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+  // ════════════════════════════════════════════════════════
+  //  DOM refs
+  // ════════════════════════════════════════════════════════
+  const toggle   = document.getElementById('chatToggle');
+  const popup    = document.getElementById('chatPopup');
+  const closeBtn = document.getElementById('chatClose');
+  const msgArea  = document.getElementById('cbMessages');
+  const input    = document.getElementById('cbInput');
+  const sendBtn  = document.getElementById('cbSend');
+
+  // ════════════════════════════════════════════════════════
+  //  State
+  // ════════════════════════════════════════════════════════
+  let isOpen          = false;
+  let chatStarted     = false;
+  // states: start | await_india_name | await_india_phone |
+  //         await_country | await_abroad_name | await_abroad_phone |
+  //         submitting | done
+  let state           = 'start';
+  let selectedType    = '';   // 'India' | 'Abroad'
+  let selectedCountry = '';   // 'Georgia' | 'Russia' | 'Almaty' | 'India'
+  let userName        = '';   // user's full name
+
+  // ════════════════════════════════════════════════════════
+  //  Toggle open / close
+  // ════════════════════════════════════════════════════════
+  toggle.addEventListener('click', () => {
+    isOpen = !isOpen;
+    toggle.classList.toggle('open', isOpen);
+    popup.classList.toggle('open', isOpen);
+    if (isOpen && !chatStarted) { chatStarted = true; setTimeout(startChat, 400); }
+  });
+
+  closeBtn.addEventListener('click', () => {
+    isOpen = false;
+    toggle.classList.remove('open');
+    popup.classList.remove('open');
+  });
+
+  // ════════════════════════════════════════════════════════
+  //  Input handlers
+  // ════════════════════════════════════════════════════════
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') trySend(); });
+  sendBtn.addEventListener('click', trySend);
+  input.addEventListener('input', () => {
+    sendBtn.disabled = !input.value.trim() || state === 'submitting';
+  });
+
+  function trySend() {
+    const val = input.value.trim();
+    if (!val || state === 'submitting') return;
+    input.value = '';
+    sendBtn.disabled = true;
+    handleUserText(val);
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  UI Helpers
+  // ════════════════════════════════════════════════════════
+  function scrollBottom() {
+    setTimeout(() => { msgArea.scrollTop = msgArea.scrollHeight; }, 50);
+  }
+
+  function addBotBubble(html) {
+    const row = document.createElement('div');
+    row.className = 'msg-row bot';
+    row.innerHTML = `<div class="msg-avatar">🤖</div><div class="msg-bubble">${html}</div>`;
+    msgArea.appendChild(row);
+    scrollBottom();
+    return row;
+  }
+
+  function addUserBubble(text) {
+    const row = document.createElement('div');
+    row.className = 'msg-row user';
+    row.innerHTML = `<div class="msg-bubble">${escHtml(text)}</div>`;
+    msgArea.appendChild(row);
+    scrollBottom();
+  }
+
+  function showTyping() {
+    const row = document.createElement('div');
+    row.className = 'msg-row bot';
+    row.id = 'typingRow';
+    row.innerHTML = `<div class="msg-avatar">🤖</div>
+      <div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+    msgArea.appendChild(row);
+    scrollBottom();
+  }
+
+  function removeTyping() {
+    const r = document.getElementById('typingRow');
+    if (r) r.remove();
+  }
+
+  function botSay(html, delay = 1200) {
+    return new Promise(resolve => {
+      showTyping();
+      setTimeout(() => {
+        removeTyping();
+        addBotBubble(html);
+        resolve();
+      }, delay);
+    });
+  }
+
+  function addButtons(labels, handler) {
+    const row = document.createElement('div');
+    row.className = 'msg-row bot';
+    row.id = 'btnRow';
+    const group = document.createElement('div');
+    group.className = 'cb-btn-group';
+    labels.forEach(lbl => {
+      const btn = document.createElement('button');
+      btn.className = 'cb-btn';
+      btn.textContent = lbl;
+      btn.addEventListener('click', () => { disableButtons(); handler(lbl); });
+      group.appendChild(btn);
+    });
+    row.appendChild(group);
+    msgArea.appendChild(row);
+    scrollBottom();
+  }
+
+  function disableButtons() {
+    const row = document.getElementById('btnRow');
+    if (row) row.querySelectorAll('.cb-btn').forEach(b => b.disabled = true);
+  }
+
+  function enableInput(placeholder = 'Type your message…') {
+    input.disabled = false;
+    input.placeholder = placeholder;
+    input.focus();
+  }
+
+  function disableInput() {
+    input.disabled = true;
+    input.value = '';
+    sendBtn.disabled = true;
+    input.placeholder = 'Type a message…';
+  }
+
+  function escHtml(t) {
+    return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function validatePhone(p) {
+    return p.replace(/\D/g, '').length >= 10;
+  }
+
+  function validateName(n) {
+    return /^[A-Za-z\s]{2,}$/.test(n.trim());
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  Google Sheets API
+  // ════════════════════════════════════════════════════════
+  async function submitLead(payload) {
+    // payload: { name, type, country, phone }
+    if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('YOUR_APPS_SCRIPT')) {
+      console.warn('[Vishwa Chatbot] Apps Script URL not set. Submission skipped.');
+      return { success: true, demo: true };
+    }
+
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // no-cors = opaque response; treat fetch completion as success
+    return { success: true };
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  Chat Flow
+  // ════════════════════════════════════════════════════════
+  async function startChat() {
+    state = 'start';
+    disableInput();
+    await botSay(
+      `Hi 👋 Welcome to <strong>VISHWA MEDICAL ADMISSION POINT</strong>.<br/>
+       Would you like admission in <strong>India</strong> or <strong>Abroad</strong>?`,
+      1000
+    );
+    addButtons(['🇮🇳 India', '✈️ Abroad'], handleDestination);
+  }
+
+  function handleDestination(choice) {
+    const label = choice.replace(/[^a-zA-Z]/g, '');
+    addUserBubble(choice);
+    if (label === 'India') {
+      selectedType    = 'India';
+      selectedCountry = 'India';
+      flowIndiaName();
+    } else {
+      selectedType = 'Abroad';
+      flowAbroadCountry();
+    }
+  }
+
+  // ── India flow ──────────────────────────────────────────
+  async function flowIndiaName() {
+    state = 'await_india_name';
+    await botSay(
+      'Great choice! 🇮🇳 May I know your <strong>full name</strong> please?',
+      1000
+    );
+    enableInput('Enter your full name…');
+  }
+
+  async function flowIndiaPhone() {
+    state = 'await_india_phone';
+    await botSay(
+      `Thanks, <strong>${escHtml(userName)}</strong>! 😊 Please enter your <strong>mobile number</strong> so our team can reach you.`,
+      1000
+    );
+    enableInput('Enter 10-digit mobile number…');
+  }
+
+  // ── Abroad flow ─────────────────────────────────────────
+  async function flowAbroadCountry() {
+    state = 'await_country';
+    await botSay(
+      'Excellent! 🌍 Please select your <strong>preferred country</strong> for MBBS admission:',
+      1000
+    );
+    addButtons(['🇬🇪 Georgia', '🇷🇺 Russia', '🇰🇿 Almaty'], handleCountry);
+  }
+
+  function handleCountry(choice) {
+    selectedCountry = choice.replace(/[^\w\s]/gu, '').trim();
+    addUserBubble(choice);
+    flowAbroadName();
+  }
+
+  async function flowAbroadName() {
+    state = 'await_abroad_name';
+    await botSay(
+      `Great pick! ✈️ May I know your <strong>full name</strong> please?`,
+      1000
+    );
+    enableInput('Enter your full name…');
+  }
+
+  async function flowAbroadPhone() {
+    state = 'await_abroad_phone';
+    await botSay(
+      `Thanks, <strong>${escHtml(userName)}</strong>! 🎓 Please enter your <strong>mobile number</strong> and our abroad counselor will connect with you.`,
+      1000
+    );
+    enableInput('Enter 10-digit mobile number…');
+  }
+
+  // ════════════════════════════════════════════════════════
+  //  Unified text handler
+  // ════════════════════════════════════════════════════════
+  async function handleUserText(text) {
+
+    // ── Name steps ──────────────────────────────────────
+    if (state === 'await_india_name' || state === 'await_abroad_name') {
+      addUserBubble(text);
+      if (!validateName(text)) {
+        await botSay('⚠️ Please enter a valid <strong>full name</strong> using alphabets only (no numbers or symbols).', 800);
+        enableInput('Enter your full name…');
+        return;
+      }
+      userName = text.trim();
+      if (state === 'await_india_name') {
+        flowIndiaPhone();
+      } else {
+        flowAbroadPhone();
+      }
+      return;
+    }
+
+    // ── Phone steps ──────────────────────────────────────
+    const isIndiaPhone  = state === 'await_india_phone';
+    const isAbroadPhone = state === 'await_abroad_phone';
+    if (!isIndiaPhone && !isAbroadPhone) return;
+
+    addUserBubble(text);
+
+    if (!validatePhone(text)) {
+      await botSay('⚠️ Please enter a valid <strong>10-digit mobile number</strong>.', 800);
+      enableInput('Enter 10-digit mobile number…');
+      return;
+    }
+
+    const phone = text.replace(/\D/g, '');
+
+    // Lock UI while submitting
+    state = 'submitting';
+    disableInput();
+    showTyping();
+
+    try {
+      const result = await submitLead({
+        name:    userName,
+        type:    selectedType,
+        country: selectedCountry,
+        phone:   phone
+      });
+
+      removeTyping();
+
+      if (result.success) {
+        state = 'done';
+        const successMsg = isIndiaPhone
+          ? `<div class="success-msg">✅ <strong>Thank you, ${escHtml(userName)}!</strong><br/>Our team will connect with you soon. Have a great day! 😊</div>`
+          : `<div class="success-msg">✅ <strong>Thank you, ${escHtml(userName)}!</strong><br/>Our abroad counselor will connect with you soon for <strong>${escHtml(selectedCountry)}</strong>. 🌟</div>`;
+        addBotBubble(successMsg);
+      } else {
+        state = isIndiaPhone ? 'await_india_phone' : 'await_abroad_phone';
+        await botSay(`⚠️ Something went wrong: ${escHtml(result.message || 'Please try again.')}`, 600);
+        enableInput('Enter 10-digit mobile number…');
+      }
+
+    } catch (err) {
+      removeTyping();
+      state = isIndiaPhone ? 'await_india_phone' : 'await_abroad_phone';
+      await botSay('⚠️ Network error. Please check your connection and try again.', 600);
+      enableInput('Enter 10-digit mobile number…');
+      console.error('[Vishwa Chatbot] fetch error:', err);
+    }
+  }
+
+})();
+</script>
+</body>
+</html>
